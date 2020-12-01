@@ -1,10 +1,15 @@
 import React, { useEffect ,useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { actions } from "../actions/index";
+import TextField from '@material-ui/core/TextField'
 import Pagination from "@material-ui/lab/Pagination";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
+import Button from "@material-ui/core/Button";
+import AddressItem from './AddressItem'
+import { useHistory } from "react-router-dom";
+
 
 
 const useStyles = makeStyles({
@@ -37,20 +42,43 @@ const useStyles = makeStyles({
 });
 const SpacexAddress = () => {
   const dispatch = useDispatch();
+  const history =  useHistory()
   const classes = useStyles()
   const [page,setPage] =  useState(1);
   const [searchedData,setSearchedData] =  useState([]);
+  const [searchedText,setSearchedText] =  useState("");
+
   const spacexAddresses = useSelector((state) => state.addressData);
   useEffect(() => {
     dispatch(actions.getAddress(0));
     //   dispatch(actions.affiliateStatsDaywise(token));
   }, [dispatch]);
   function handleChange(event,value) {
-    console.log(event,value);
+    setSearchedText("");
+    setSearchedData([]);
     setPage(value)
     const offset = value>0 ?(value-1)*10:0
       dispatch(actions.getAddress(offset));
   }
+ function onFieldChange(event) {
+   const value = event.target.value
+  setSearchedText(value );
+    if (value) {
+      const searchedlist = spacexAddresses&&spacexAddresses.length&&
+      spacexAddresses.filter(list => {
+        if (list.manufacturer) {
+          return list.manufacturer.toLowerCase().includes(value)   
+        }
+      })
+      setSearchedData(searchedlist );
+
+    } else if (!value) {
+      setSearchedData("");
+
+    }
+
+  }
+  console.log(searchedData,searchedText);
   return (
     <Container>
         <Pagination
@@ -65,42 +93,41 @@ const SpacexAddress = () => {
           handleChange(event,value);
         }}
       />
-      {spacexAddresses &&
-        spacexAddresses.length &&
+      <Box display="flex" flexDirection="row">
+        <Box flex="1">
+      <TextField 
+       label="Search" variant="filled"
+       value={searchedText}
+      onChange={event => {
+        onFieldChange(event);
+      }}/>
+      </Box>
+      <Box>
+      <Button 
+      onClick={()=>history.push('/history')}
+       variant="contained" color="primary">
+         Go To Next page
+         </Button>
+      </Box>
+      </Box>
+      {searchedData &&searchedData.length?
+      searchedData.map((list)=>{
+        return(
+          <AddressItem list={list} />
+        )
+      }):
+      !searchedText&&
+      spacexAddresses &&
+        spacexAddresses.length ?
         spacexAddresses.map((list) => {
           return (
-          <Box display="flex" flexDirection="column" bgcolor="#ccc" my={1} p={2} px={4} borderRadius={5}>
-            {list.customers&&list.customers.length&&list.customers.map(cust=>{
-              return(
-                <Box>
-                 Customers : {cust}
-                </Box>
-              )
-            })}
-            <Box>
-            Manufacturer : {list.manufacturer}
-            </Box>
-            <Box>
-            Nationality: {list.nationality}
-            </Box>
-            <Box>
-            Orbit: {list.orbit}
-            </Box>
-            <Box>
-              Payload Id : {list.payload_id}
-              {list.payload_mass_kg}
-              {list.payload_mass_lbs}
-            </Box>
-            <Box>
-            Payload mass kg : {list.payload_mass_kg}
-            </Box>
-            <Box>
-            Payload mass lbs : {list.payload_mass_lbs}
-            </Box>
-            
-
-          </Box>)
-        })}
+          <AddressItem list={list}/>)
+        })
+      :
+      <Box display="flex" justifyContent="center" alignItems="center">
+      No data
+      </Box>
+        }
             
     </Container>
   );

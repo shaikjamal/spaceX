@@ -6,7 +6,7 @@ import SpacexHistory from "./components/SpacexHistory";
 function App() {
   return (
     <Router key="routerswitch">
-      <Route exact path="/address" component={SpacexAddress} />
+      <Route exact path="/" component={SpacexAddress} />
       <Route  path="/history" component={SpacexHistory} />
     </Router>
 

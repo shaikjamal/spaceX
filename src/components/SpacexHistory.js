@@ -1,9 +1,13 @@
 import React, { useEffect ,useState,Fragment} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { actions } from "../actions/index";
+import { useHistory } from "react-router-dom";
+
 import Pagination from "@material-ui/lab/Pagination";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
+import Button from "@material-ui/core/Button";
+import HistoryItem from './HistoryItem'
 import Container from "@material-ui/core/Container";
 
 
@@ -38,6 +42,8 @@ const useStyles = makeStyles({
 const SpacexHistory = () => {
   const dispatch = useDispatch();
   const classes = useStyles()
+  const history =  useHistory()
+
   const [page,setPage] =  useState(1);
   const spacexHistory = useSelector(
     (state) => state.historyData
@@ -56,6 +62,8 @@ useEffect(() => {
   }
   return (
     <Container>
+         <Box  display="flex" flexDirection="row" mt={1}>
+        <Box flex="1">
         <Pagination
         classes={{
           root: classes.pagination,
@@ -68,44 +76,24 @@ useEffect(() => {
           handleChange(event,value);
         }}
       />
+      </Box>
+      <Box >
+      <Button 
+      onClick={()=>history.push('/')}
+       variant="contained" color="primary">
+         Go To Prev page
+         </Button>
+      </Box>
+      </Box>
       {spacexHistory &&
-        spacexHistory.length &&
+        spacexHistory.length ?
         spacexHistory.map((list) => {
           return (
-          <Box display="flex" flexDirection="column" bgcolor="#ccc" my={1} p={2} px={4} borderRadius={5}>
-            
-            <Box>
-            Id : {list.id}
-            </Box>
-            <Box>
-            Title: {list.title}
-            </Box>
-            <Box>
-            Details: {list.details}
-            </Box>
-            <Box>
-            Event date unix  : {list.event_date_unix}
-            </Box>
-            <Box>
-            Event date utc : {list.event_date_utc}
-            </Box>
-            <Box>
-            Payload mass lbs : {list.payload_mass_lbs}
-            </Box>
-            <Box>
-            Flight number  : {list.flight_number}
-            </Box>
-            {list.links ?
-                <Box>
-                 Links : 
-                 {list.links["article"]}
-                 {list.links["reddit"]}
-
-                 {list.links["wikipedia"]}
-
-                </Box>:<Fragment/>}
-          </Box>)
-        })}
+          <HistoryItem list={list}/>)
+        }):
+        <Box display="flex" justifyContent="center" alignItems="center">
+          No Data
+        </Box>}
             
     </Container>
   );
