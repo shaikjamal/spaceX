@@ -1,0 +1,3 @@
+export const SPACEX_ADDRESS = 'SPACEX_ADDRESS';
+export const SPACEX_HISTORY = 'SPACEX_HISTORY';
+
